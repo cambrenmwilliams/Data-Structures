@@ -12,6 +12,14 @@ class SparseRow {
         void display(); // print Row#, Column#, value
         ostream& operator<< (ostream& s, const SparseRow);
         //other methods that are necessary such as get and set
+        //Getters
+        int getRow();
+        int getCol();
+        int getValue();
+        //Setters
+        void setRow(int r);
+        void setCol(int c);
+        void setValue(int v);
 };
 
 SparseRow::SparseRow() { //Default constructor here
@@ -21,9 +29,39 @@ SparseRow::SparseRow() { //Default constructor here
 }
 
 void SparseRow::display() {  //Display method here
-    cout << "Number of Rows: " << row << endl;
-    cout << "Number of Colums: " << col << endl;
-    cout << "Value: " << value << endl;
+    cout << row << ", " << col << ", " << value << endl;
+}
+
+ostream& SparseRow::operator<< (ostream&s, const SparseRow) {
+
+}
+
+int SparseRow::getRow() {
+    return row;
+}
+
+int SparseRow::getCol() {
+    return col;
+}
+
+int SparseRow::getValue() {
+    return value;
+}
+
+void SparseRow::setRow(int r) {
+    row = r;
+}
+
+void SparseRow::setCol(int c) {
+    col = c;
+}
+
+void SparseRow::setValue(int v) {
+    value = v;
+}
+
+SparseRow::~SparseRow() {     //Deconstructor
+
 }
 
 class SparseMatrix {
@@ -35,7 +73,7 @@ class SparseMatrix {
         SparseRow* myMatrix; //Array
     public:
         SparseMatrix ();
-        SparseMatrix (int n, int m, int cv);
+        SparseMatrix (int n, int m, int cv, int noNSV);
         SparseMatrix* Transpose (); //Matrix Transpose
         SparseMatrix* Multiply (SparseMatrix& M);
         SparseMatrix* Add (SparseMatrix& M);
@@ -45,6 +83,27 @@ class SparseMatrix {
 }; 
 
 //write the methods after the class definition
+SparseMatrix::SparseMatrix() {   //Default Constructor
+    noRows = 0;
+    noCols = 0;
+    commonValue = 0;
+    noNonSparseValues = 0;
+}
+
+SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
+    //  Sets up the variables
+    noRows = n;
+    noCols = m;
+    commonValue = cv;
+    noNonSparseValues = noNSV;
+
+    //  For loop to make the sparse matrix
+    for(int i = 0; i < noNonSparseValues; i++) {
+        
+    }
+
+}
+
 
 int main () {
 
@@ -88,3 +147,18 @@ int main () {
     cout << temp;
     (*temp).displayMatrix();
 }
+
+/*
+    LLM and GitHub Copilot Usage
+
+
+
+
+*/
+/*
+    Debugging and Testing Plan
+
+
+
+
+*/
