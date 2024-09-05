@@ -10,12 +10,12 @@ class SparseRow {
     public:
         SparseRow (); //default constructor; row=-1;col=-1;value=0
         void display(); // print Row#, Column#, value
-        ostream& operator<< (ostream& s, const SparseRow);
+        friend ostream& operator<< (ostream& s, const SparseRow); //ostream method, 
         //other methods that are necessary such as get and set
         //Getters
-        int getRow();
-        int getCol();
-        int getValue();
+        int getRow() const ; //The const is added because ostream requires it
+        int getCol() const ; //This also ensures that the method does not change the object
+        int getValue() const ;
         //Setters
         void setRow(int r);
         void setCol(int c);
@@ -36,16 +36,16 @@ class SparseMatrix {
         SparseMatrix* Transpose (); //Matrix Transpose
         SparseMatrix* Multiply (SparseMatrix& M);
         SparseMatrix* Add (SparseMatrix& M);
-        ostream& operator<< (ostream& s, const SparseMatrix& sm);
+        friend ostream& operator<< (ostream& s, const SparseMatrix& sm); //ostream method
         void displayMatrix (); //Display the matrix in its original format
         //other methods that are necessary such as get and set
         
         //Getters
-        int getNoRows();
-        int getNoCols();
-        int getCommonValue();
-        int getNoNonSparseValues();
-        SparseRow* getMyMatrix();
+        int getNoRows() const;
+        int getNoCols() const ;
+        int getCommonValue() const;
+        int getNoNonSparseValues() const;
+        SparseRow* getMyMatrix() const;
 
         //Setters
         void setNoRows(int n);
@@ -68,15 +68,15 @@ void SparseRow::display() {  //Display method here
     cout << row << ", " << col << ", " << value << endl;
 }
 
-int SparseRow::getRow() {
+int SparseRow::getRow() const {
     return row;
 }
 
-int SparseRow::getCol() {
+int SparseRow::getCol() const {
     return col;
 }
 
-int SparseRow::getValue() {
+int SparseRow::getValue() const {
     return value;
 }
 
@@ -122,8 +122,10 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
     do {       //Do loop that stops after there is no more values
         for(int k = 0; k < noRows; k++) { //Counts Rows
             for(int j = 0; j < noCols; j++) { //Counts Columns
-                if(cin.get()!=commonValue){ //Checks if its a non Common value
-                    myMatrix[i].setValue(cin.get()); //sets value
+                int value;
+                cin >> value; // Read the value from input
+                if(value != commonValue){ //Checks if its a non Common value
+                    myMatrix[i].setValue(value); //sets value
                     myMatrix[i].setCol(j); //sets col
                     myMatrix[i].setRow(k); //sets row
                     i++;
@@ -182,8 +184,8 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) { //Method for matrix mult
 }
 
 ostream& operator<< (ostream& s, const SparseMatrix& sm) { //Method for ostream
-    for(int i = 0; i < sm.noNonSparseValues; i++) { //For loop to go through all values
-        s << sm.myMatrix[i]; //Prints the value
+    for(int i = 0; i < sm.getNoNonSparseValues(); i++) { //For loop to go through all values
+        s << sm.getMyMatrix()[i]; 
     }
     return s; //Returns the ostream
 }
@@ -204,16 +206,16 @@ void SparseMatrix::displayMatrix() { //Method to display the matrix
 }
 
 //Getters
-int SparseMatrix::getNoRows() {
+int SparseMatrix::getNoRows() const {
     return noRows;
 }
-int SparseMatrix::getNoCols() {
+int SparseMatrix::getNoCols() const {
     return noCols;
 }
-int SparseMatrix::getCommonValue() {
+int SparseMatrix::getCommonValue() const {
     return commonValue;
 }
-int SparseMatrix::getNoNonSparseValues() {
+int SparseMatrix::getNoNonSparseValues() const {
     return noNonSparseValues;
 }
 
@@ -247,33 +249,34 @@ int main () {
     
     //Write the Statements to read in the first matrix
     
+    
     cin >> n >> m >> cv >> noNSV;
     SparseMatrix* secondOne = new SparseMatrix(n, m, cv, noNSV);
     
     //Write the Statements to read in the second matrix
     
-    cout << “First one in matrix format” << endl;
+    cout << "First one in matrix format" << endl;
     (*firstOne).displayMatrix();
     
-    cout << “First one in sparse matrix format” << endl;
+    cout << "First one in sparse matrix format" << endl;
     cout << (*firstOne);
     
-    cout << “Second one in matrix format” << endl;
+    cout << "Second one in matrix format" << endl;
     (*secondOne).displayMatrix();
     
-    cout << “Second one in sparse matrix format” << endl;
+    cout << "Second one in sparse matrix format" << endl;
     cout << (*secondOne);
     
-    cout << “Transpose of the first one in matrix” << endl;
+    cout << "Transpose of the first one in matrix" << endl;
     cout << (*(*firstOne).Transpose());
     
-    cout << “Matrix Addition Result” << endl;
+    cout << "Matrix Addition Result" << endl;
     
-    temp = (*(*firstOne).Addition(secondOne));
+    temp = (*(*firstOne).Add(secondOne));
     cout << temp;
     (*temp).displayMatrix();
     
-    cout << “Matrix Multiplication Result” << endl;
+    cout << "Matrix Multiplication Result" << endl;
     
     temp = (*(*firstOne).Multiply(secondOne));
     cout << temp;
