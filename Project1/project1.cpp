@@ -38,6 +38,7 @@ class SparseMatrix {
         SparseMatrix* Add (SparseMatrix& M);
         friend ostream& operator<< (ostream& s, const SparseMatrix& sm); //ostream method
         void displayMatrix (); //Display the matrix in its original format
+        void displaySparseMatrix (); //Display the matrix in its sparse format
         //other methods that are necessary such as get and set
         
         //Getters
@@ -97,10 +98,6 @@ ostream& operator<< (ostream& s, const SparseRow& sr) {
     return s;
 }
 
-SparseRow::~SparseRow() {     //Deconstructor
-
-}
-
 // Methods for SparseMatrix
 SparseMatrix::SparseMatrix() {   //Default Constructor
     noRows = 0;
@@ -117,25 +114,6 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
     commonValue = cv;
     noNonSparseValues = noNSV;
     myMatrix = new SparseRow[noNonSparseValues];
-
-    /*
-    int i = 0; //Value to count how many Non Sparse Values
-    do {       //Do loop that stops after there is no more values
-        for(int k = 0; k < noRows; k++) { //Counts Rows
-            for(int j = 0; j < noCols; j++) { //Counts Columns
-                int value;
-                cin >> value; // Read the value from input
-                if(value != commonValue){ //Checks if its a non Common value
-                    myMatrix[i].setValue(value); //sets value
-                    myMatrix[i].setCol(j); //sets col
-                    myMatrix[i].setRow(k); //sets row
-                    i++;
-                }
-            }
-        }
-
-    } while (i < noNonSparseValues); //Goes until no more values
-    */
 }
 
 SparseMatrix::~SparseMatrix() { //Deconstructor
@@ -210,6 +188,12 @@ void SparseMatrix::displayMatrix() { //Method to display the matrix
     }
 }
 
+void SparseMatrix::displaySparseMatrix() { //Method to display the sparse matrix
+    for(int i = 0; i < noNonSparseValues; i++) { //For loop to go through all values
+        cout << myMatrix[i].getRow() << ", " << myMatrix[i].getCol() << ", " << myMatrix[i].getValue() << endl; //Prints the value
+    }
+}
+
 //Getters
 int SparseMatrix::getNoRows() const {
     return noRows;
@@ -254,59 +238,50 @@ int main () {
 
     cin >> n >> m >> cv >> noNSV;
     SparseMatrix* firstOne = new SparseMatrix(n, m, cv, noNSV);
-    
-    //Write the Statements to read in the first matrix
-    
-    int i = 0; //Value to count how many Non Sparse Values
-    do {       //Do loop that stops after there is no more values
-        for(int k = 0; k < n; k++) { //Counts Rows
-            for(int j = 0; j < m; j++) { //Counts Columns
-                int value;
-                cin >> value; // Read the value from input
-                if(value != cv){ //Checks if its a non Common value
-                    firstOne->getMyMatrix()[i].setValue(value); //sets value
-                    firstOne->getMyMatrix()[i].setCol(j); //sets col
-                    firstOne->getMyMatrix()[i].setRow(k); //sets row
-                    i++;
-                }
+    int count = 0;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            int value;
+            cin >> value;
+            if(value != cv) {
+                firstOne->getMyMatrix()[count].setValue(value);
+                firstOne->getMyMatrix()[count].setCol(j);
+                firstOne->getMyMatrix()[count].setRow(i);
+                count++;
             }
         }
-
-    } while (i < noNSV); //Goes until no more values
-
+    }
     cin >> n >> m >> cv >> noNSV;
     SparseMatrix* secondOne = new SparseMatrix(n, m, cv, noNSV);
     
     //Write the Statements to read in the second matrix
     //repeated code from above
-    int i = 0; //Value to count how many Non Sparse Values
-    do {       //Do loop that stops after there is no more values
-        for(int k = 0; k < n; k++) { //Counts Rows
-            for(int j = 0; j < m; j++) { //Counts Columns
-                int value;
-                cin >> value; // Read the value from input
-                if(value != cv){ //Checks if its a non Common value
-                    secondOne->getMyMatrix()[i].setValue(value); //sets value
-                    secondOne->getMyMatrix()[i].setCol(j); //sets col
-                    secondOne->getMyMatrix()[i].setRow(k); //sets row
-                    i++;
-                }
+    count = 0;
+    for(int i = 0; i < n; i++) {
+        for(int j = 0; j < m; j++) {
+            int value;
+            cin >> value;
+            if(value != cv) {
+                secondOne->getMyMatrix()[count].setValue(value);
+                secondOne->getMyMatrix()[count].setCol(j);
+                secondOne->getMyMatrix()[count].setRow(i);
+                count++;
             }
         }
-
-    } while (i < noNSV); //Goes until no more values
+    }
 
     cout << "First one in matrix format" << endl;
     (*firstOne).displayMatrix();
     
     cout << "First one in sparse matrix format" << endl;
-    cout << (*firstOne);
+    (*firstOne).displaySparseMatrix();
+    
     
     cout << "Second one in matrix format" << endl;
     (*secondOne).displayMatrix();
     
     cout << "Second one in sparse matrix format" << endl;
-    cout << (*secondOne);
+    (*secondOne).displaySparseMatrix();
     
     cout << "Transpose of the first one in matrix" << endl;
     cout << (*(*firstOne).Transpose());
