@@ -22,7 +22,6 @@ class SparseRow {
         void setValue(int v);
 };
 
-
 class SparseMatrix {
     protected:
         int noRows; //Number of rows of the original matrix
@@ -33,6 +32,7 @@ class SparseMatrix {
     public:
         SparseMatrix ();
         SparseMatrix (int n, int m, int cv, int noNSV);
+        ~SparseMatrix(); //Deconstructor
         SparseMatrix* Transpose (); //Matrix Transpose
         SparseMatrix* Multiply (SparseMatrix& M);
         SparseMatrix* Add (SparseMatrix& M);
@@ -93,7 +93,7 @@ void SparseRow::setValue(int v) {
 }
 
 ostream& operator<< (ostream& s, const SparseRow& sr) {
-    s << sr.getRow() << ", " << sr.getCol() << ", " << sr.getValue() << endl;
+    s << static_cast<const SparseRow&>(sr).getRow() << ", " << static_cast<const SparseRow&>(sr).getCol() << ", " << static_cast<const SparseRow&>(sr).getValue();
     return s;
 }
 
@@ -107,7 +107,7 @@ SparseMatrix::SparseMatrix() {   //Default Constructor
     noCols = 0;
     commonValue = 0;
     noNonSparseValues = 0;
-    myMatrix = new SparseRow[noNonSparseValues];
+    myMatrix = NULL;
 }
 
 SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
@@ -118,6 +118,7 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
     noNonSparseValues = noNSV;
     myMatrix = new SparseRow[noNonSparseValues];
 
+    /*
     int i = 0; //Value to count how many Non Sparse Values
     do {       //Do loop that stops after there is no more values
         for(int k = 0; k < noRows; k++) { //Counts Rows
@@ -134,7 +135,11 @@ SparseMatrix::SparseMatrix(int n, int m, int cv, int noNSV) {   //Constructor
         }
 
     } while (i < noNonSparseValues); //Goes until no more values
+    */
+}
 
+SparseMatrix::~SparseMatrix() { //Deconstructor
+    delete[] myMatrix;
 }
 
 SparseMatrix* SparseMatrix::Transpose() {  //Method for matrix Transposal
@@ -185,7 +190,7 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) { //Method for matrix mult
 
 ostream& operator<< (ostream& s, const SparseMatrix& sm) { //Method for ostream
     for(int i = 0; i < sm.getNoNonSparseValues(); i++) { //For loop to go through all values
-        s << sm.getMyMatrix()[i]; 
+        s << sm.myMatrix[i] << endl;
     }
     return s; //Returns the ostream
 }
@@ -218,6 +223,9 @@ int SparseMatrix::getCommonValue() const {
 int SparseMatrix::getNoNonSparseValues() const {
     return noNonSparseValues;
 }
+SparseRow* SparseMatrix::getMyMatrix() const {
+    return myMatrix;
+}
 
 //Setters
 void SparseMatrix::setNoRows(int n) {
@@ -249,12 +257,45 @@ int main () {
     
     //Write the Statements to read in the first matrix
     
-    
+    int i = 0; //Value to count how many Non Sparse Values
+    do {       //Do loop that stops after there is no more values
+        for(int k = 0; k < n; k++) { //Counts Rows
+            for(int j = 0; j < m; j++) { //Counts Columns
+                int value;
+                cin >> value; // Read the value from input
+                if(value != cv){ //Checks if its a non Common value
+                    firstOne->getMyMatrix()[i].setValue(value); //sets value
+                    firstOne->getMyMatrix()[i].setCol(j); //sets col
+                    firstOne->getMyMatrix()[i].setRow(k); //sets row
+                    i++;
+                }
+            }
+        }
+
+    } while (i < noNSV); //Goes until no more values
+
     cin >> n >> m >> cv >> noNSV;
     SparseMatrix* secondOne = new SparseMatrix(n, m, cv, noNSV);
     
     //Write the Statements to read in the second matrix
-    
+    //repeated code from above
+    int i = 0; //Value to count how many Non Sparse Values
+    do {       //Do loop that stops after there is no more values
+        for(int k = 0; k < n; k++) { //Counts Rows
+            for(int j = 0; j < m; j++) { //Counts Columns
+                int value;
+                cin >> value; // Read the value from input
+                if(value != cv){ //Checks if its a non Common value
+                    secondOne->getMyMatrix()[i].setValue(value); //sets value
+                    secondOne->getMyMatrix()[i].setCol(j); //sets col
+                    secondOne->getMyMatrix()[i].setRow(k); //sets row
+                    i++;
+                }
+            }
+        }
+
+    } while (i < noNSV); //Goes until no more values
+
     cout << "First one in matrix format" << endl;
     (*firstOne).displayMatrix();
     
@@ -272,13 +313,13 @@ int main () {
     
     cout << "Matrix Addition Result" << endl;
     
-    temp = (*(*firstOne).Add(secondOne));
+    temp = firstOne->Add(*secondOne);
     cout << temp;
     (*temp).displayMatrix();
     
     cout << "Matrix Multiplication Result" << endl;
     
-    temp = (*(*firstOne).Multiply(secondOne));
+    temp = firstOne->Multiply(*secondOne);
     cout << temp;
     (*temp).displayMatrix();
 }
