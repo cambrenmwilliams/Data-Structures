@@ -190,7 +190,7 @@ SparseMatrix* SparseMatrix::Multiply(SparseMatrix& M) { //Method for matrix mult
 
 ostream& operator<< (ostream& s, const SparseMatrix& sm) { //Method for ostream
     for(int i = 0; i < sm.getNoNonSparseValues(); i++) { //For loop to go through all values
-        s << sm.myMatrix[i] << endl;
+        s << sm.myMatrix << endl;
     }
     return s; //Returns the ostream
 }
