@@ -173,14 +173,20 @@ ostream& operator<< (ostream& s, const SparseMatrix& sm) { //Method for ostream
     return s; //Returns the ostream
 }
 
+
 void SparseMatrix::displayMatrix() { //Method to display the matrix
     int i = 0; //Variable to count the values
     for(int k = 0; k < noRows; k++) { //For loop to go through all rows
         for(int j = 0; j < noCols; j++) { //For loop to go through all columns
-            if(myMatrix[i].getRow() == k && myMatrix[i].getCol() == j) { //Checks if the value is in the matrix
-                cout << myMatrix[i].getValue() << " "; //Prints the value
-                i++; //Increments i
-            } else { //If the value is not in the matrix
+            bool found = false; //Flag to check if the value is found in the matrix
+            for(int l = 0; l < noNonSparseValues; l++) { //Loop through all non-sparse values
+                if(myMatrix[l].getRow() == k && myMatrix[l].getCol() == j) { //Checks if the value is in the matrix
+                    cout << myMatrix[l].getValue() << " "; //Prints the value
+                    found = true; //Set the flag to true
+                    break; //Exit the loop
+                }
+            }
+            if(!found) { //If the value is not found in the matrix
                 cout << commonValue << " "; //Prints the common value
             }
         }
@@ -284,7 +290,7 @@ int main () {
     (*secondOne).displaySparseMatrix();
     
     cout << "Transpose of the first one in matrix" << endl;
-    cout << (*(*firstOne).Transpose());
+    (*(*firstOne).Transpose()).displaySparseMatrix();
     
     cout << "Matrix Addition Result" << endl;
     
@@ -308,6 +314,13 @@ int main () {
     Explanation: I was unsure on how the ostream method worked
         so I asked Copilot to generate a method and edited it 
         to fit the requirements.
+
+    Prompt: this display matrix method only works in sorted 
+        matrixes, adjust it for unsorted matrixes as well
+
+    Explanation: My display matrix method failed to display 
+        unsorted matrixes correctly when running the transpose 
+        method. I asked Copilot how to adjust it.
 
 
 
