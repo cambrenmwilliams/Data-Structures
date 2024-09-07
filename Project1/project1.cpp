@@ -121,32 +121,60 @@ SparseMatrix::~SparseMatrix() { //Deconstructor
 }
 
 SparseMatrix* SparseMatrix::Transpose() {  //Method for matrix Transposal
-    int temp; //Temporary variable
-    temp = noCols; //Sets temp to noCols
-    noCols = noRows; //Sets noCols to noRows
-    noRows = temp; //Sets noRows to temp
-
+    SparseMatrix* temp = new SparseMatrix(noCols, noRows, commonValue, noNonSparseValues); //Creates a new matrix
+    
     for(int i = 0; i < noNonSparseValues; i++) { //For loop to go through all values
-        temp = myMatrix[i].getRow(); //Sets temp to row
-        myMatrix[i].setRow(myMatrix[i].getCol()); //Sets row to col
-        myMatrix[i].setCol(temp); //Sets col to temp
+        temp->myMatrix[i].setRow(myMatrix[i].getCol()); //Sets row
+        temp->myMatrix[i].setCol(myMatrix[i].getRow()); //Sets col
+        temp->myMatrix[i].setValue(myMatrix[i].getValue()); //Sets value
     }
-    return this; //Returns the transposed matrix
+
+    return temp; //Returns the transposed matrix
 }
 
 SparseMatrix* SparseMatrix::Add(SparseMatrix& M) { //Method for matrix addition
-    SparseMatrix* temp = new SparseMatrix(); //Creates a new matrix
-    temp->setNoRows(noRows); //Sets noRows to temp
-    temp->noCols = noCols; //Sets noCols to temp
-    temp->commonValue = commonValue; //Sets commonValue to temp
-    temp->noNonSparseValues = noNonSparseValues; //Sets noNonSparseValues to temp
-    temp->myMatrix = new SparseRow[noNonSparseValues]; //Creates a new matrix
-
-    for(int i = 0; i < noNonSparseValues; i++) { //For loop to go through all values
-        temp->myMatrix[i].setRow(myMatrix[i].getRow()); //Sets row
-        temp->myMatrix[i].setCol(myMatrix[i].getCol()); //Sets col
-        temp->myMatrix[i].setValue(myMatrix[i].getValue() + M.myMatrix[i].getValue()); //Sets value
-    }
+    int maxNNSV = noNonSparseValues+M.noNonSparseValues; //Variable to store the maximum number of non-sparse values
+    SparseMatrix* temp = new SparseMatrix(noRows, noCols, commonValue, maxNNSV); //Creates a new matrix
+    int count = 0; //Variable to keep track of the number of non-sparse values in the new matrix
+    for(int i = 0; i < noRows; i++) {
+        for(int j = 0; j < noCols; j++) {
+            bool found1 = false; //Flag to check if the value is found in the matrix
+            bool found2 = false; //Flag to check if the value is found in the M matrix
+            int tempValue = 0; //Variable to store the value
+            int tempValue2 = 0; //Variable to store the value
+            for(int k = 0; k < noNonSparseValues; k++){
+                if(myMatrix[k].getRow() == i && myMatrix[k].getCol() == j) { //Checks if the value is in the first matrix
+                    found1 = true; //Set the flag to true
+                    tempValue = k;
+                }
+                if(M.myMatrix[k].getRow() == i && M.myMatrix[k].getCol() == j) { //Checks if the value is in the second matrix
+                    found2 = true; //Set the flag to true
+                    tempValue2 = k;
+                   
+                }
+                if(found1 || found2) { //If the value is found in both matrices
+                    break; //Exit the loop
+                }
+            }
+            if(found1 && found2) { 
+                temp->myMatrix[count].setRow(i); //Sets row
+                temp->myMatrix[count].setCol(j); //Sets col
+                temp->myMatrix[count].setValue(myMatrix[tempValue].getValue() + M.myMatrix[tempValue2].getValue()); //Sets value
+                count++; //Increments the count
+            } else if(found1) {
+                temp->myMatrix[count].setRow(i); //Sets row
+                temp->myMatrix[count].setCol(j); //Sets col
+                temp->myMatrix[count].setValue(myMatrix[tempValue].getValue()); //Sets value
+                count++; //Increments the count
+            } else if(found2) {
+                temp->myMatrix[count].setRow(i); //Sets row
+                temp->myMatrix[count].setCol(j); //Sets col
+                temp->myMatrix[count].setValue(M.myMatrix[tempValue2].getValue()); //Sets value
+                count++; //Increments the count
+            }
+        }
+    }   
+    temp->setNoNonSparseValues(count); //Sets the number of non-sparse values in the new matrix
     return temp; //Returns the new matrix
 }
 
@@ -294,15 +322,19 @@ int main () {
     
     cout << "Matrix Addition Result" << endl;
     
-    temp = firstOne->Add(*secondOne);
-    cout << temp;
-    (*temp).displayMatrix();
+    (*(*firstOne).Add(*secondOne)).displayMatrix();
     
     cout << "Matrix Multiplication Result" << endl;
     
     temp = firstOne->Multiply(*secondOne);
     cout << temp;
     (*temp).displayMatrix();
+    
+    delete firstOne;
+    delete secondOne;
+    delete temp;
+
+    return 0;
 }
 
 /*
@@ -321,6 +353,8 @@ int main () {
     Explanation: My display matrix method failed to display 
         unsorted matrixes correctly when running the transpose 
         method. I asked Copilot how to adjust it.
+
+    
 
 
 
