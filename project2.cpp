@@ -34,6 +34,8 @@ class Chip {
         // Getter
         Chip* getInput1();
         Chip* getInput2();
+        // Setter
+        void setInputValue(double value);
 
 };
 
@@ -59,6 +61,10 @@ void Chip::setOutput(Chip* outputChip) {
     output = outputChip;
 }
 
+void Chip::setInputValue(double value) {
+    inputValue = value;
+}
+
 //Getter
 string Chip::getId() const {
     return id;
@@ -79,67 +85,62 @@ void Chip::compute() {
     // For example, if the chip type is A, then add the two inputs
     // and store the result in the output chip
     if(chipType == 'O') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
+            cout << "The output value from this circuit is " << input1->inputValue << endl;
         }
-        cout << "The output value from this circuit is " << input1->inputValue << endl;
     }
     if(chipType == 'A') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
         }
-        if(input2==NULL) {
+        if(input2!=nullptr) {
             input2->compute();
         }
-        if(input1 != NULL && input2 != NULL) {
-            output->inputValue = input1->inputValue + input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {
+            inputValue = input1->inputValue + input2->inputValue;
         }
-        cout << "ADD" << endl;
     }
     if(chipType == 'S') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
         }
-        if(input2==NULL) {
+        if(input2!=nullptr) {
             input2->compute();
         }
-        if(input1 != NULL && input2 != NULL) {
-            output->inputValue = input1->inputValue - input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {
+            inputValue = input1->inputValue - input2->inputValue;
         }
-        cout << "SUB" << endl;
     }
     if(chipType == 'M') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
         }
-        if(input2==NULL) {
+        if(input2!=nullptr) {
             input2->compute();
         }
-        if(input1 != NULL && input2 != NULL) {
-            output->inputValue = input1->inputValue * input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {
+            inputValue = input1->inputValue * input2->inputValue;
         }
-        cout << "MUL" << endl;
     }
     if(chipType == 'D') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
         }
-        if(input2==NULL) {
+        if(input2!=nullptr) {
             input2->compute();
         }
-        if(input1 != NULL && input2 != NULL) {
-            output->inputValue = input1->inputValue / input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {
+            inputValue = input1->inputValue / input2->inputValue;
         }
-        cout << "DIV" << endl;
     }   
     if(chipType == 'N') {
-        if(input1==NULL) {
+        if(input1!=nullptr) {
             input1->compute();
         }
-        if(input1 != NULL) {
-            output->inputValue = -input1->inputValue;
+        if(input1 !=nullptr) {
+            inputValue = -input1->inputValue;
         }
-        cout << "NEG" << endl;
     } 
 
 }
@@ -150,6 +151,27 @@ void Chip::display() const {
     // For example, if the chip type is O, then display the output value
     // For example, if the chip type is A, then display the two input values
     // and the output value
+    if(chipType == 'I') {
+        cout << id << ", Output = " << output->getId() << endl;
+    }
+    if(chipType == 'O') {
+        cout << id << ", Input 1 = " << input1->getId() << endl;
+    }
+    if(chipType == 'A') {
+        cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = " << input2->getId() << ", Output = " << output->getId() << endl;
+    }
+    if(chipType == 'S') {
+        cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = " << input2->getId() << ", Output = " << output->getId() << endl;
+    }
+    if(chipType == 'M') {
+        cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = " << input2->getId() << ", Output = " << output->getId() << endl;
+    }
+    if(chipType == 'D') {
+        cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = " << input2->getId() << ", Output = " << output->getId() << endl;
+    }
+    if(chipType == 'N') {
+        cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = None, Output = " << output->getId() << endl;
+    }
 }
 
 // Destructor
@@ -186,7 +208,6 @@ int main () {
         Chip* chip = new Chip(type, id); //create the chip object
         allChips[i] = chip; //store the chip object in the allChips array
     }
-    cout << "***** Showing the chips that were created" << endl;
     
     cin >> numCommands; //read the number of commands
     for (int i=0; i < numCommands; i++) {
@@ -220,7 +241,7 @@ int main () {
                 allChips[indexOfOutput]->setInput2(allChips[indexOfInput]);
             }
             allChips[indexOfInput]->setOutput(allChips[indexOfOutput]);
-            cout << "Connected " << input << " to " << chipId << endl;
+            
         }
         else if(command == "I") {
             cin >> chipId >> value;
@@ -229,7 +250,8 @@ int main () {
                 if(allChips[j]->getId() == chipId) {
                     //connect the input value to the chip
                     allChips[j]->setInput1(allChips[j]);
-                    cout << "Connected " << value << " to " << chipId << endl;
+                    allChips[j]->setInputValue(value);
+                    
                     break;
                 }
             }
@@ -248,6 +270,13 @@ int main () {
     }
     cout << "***** Showing the connections that were established" << endl;
     //for each component created call the display () method
+    for(int c = 0; c < numChips; c++) {
+        allChips[c]->display();
+    }
+    //delete the memory allocated for the chip objects
+    for(int d = 0; d < numChips; d++) {
+        delete allChips[d];
+    }
     return 0;
 }
 
@@ -277,7 +306,18 @@ int main () {
        correctly. After testing, I realized that the pointer to the output chip was not being
        set.
 
-    5.
+    5. Corrected the pointer to the output chip, but the compute method would not work correctly.
+       To be more specific, the output for the input1.txt sample file was outputing
+       17 rather than 136. I asked CoPilot what the issue with the compute method was and it
+       corrected the error.
+
+    6. Checked everything was working correctly with all the sample input files.
+
+    7. Added the display method to the Chip class. After running a for loop in main to test
+       the display method, I realized the display method was outputing the address rather
+       than the id of the chip. I corrected this by calling getId().
+
+    8. Called the destructor in the main function to delete the memory allocated for the chip objects.
 
 
 
