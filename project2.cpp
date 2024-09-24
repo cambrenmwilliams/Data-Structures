@@ -41,27 +41,27 @@ class Chip {
 
 // Constructor
 Chip::Chip(char type, const string& id) {
-    chipType = type;
-    this->id = id;
-    input1 = NULL;
-    input2 = NULL;
-    inputValue = 0;
+    chipType = type;  // Set the chip type
+    this->id = id;  // Set the chip id
+    input1 = NULL;  // Set the input1 to NULL
+    input2 = NULL;  // Set the input2 to NULL
+    inputValue = 0;  // Set the input value to 0
 }
 
 // Setters
-void Chip::setInput1(Chip* inputChip) {
-    input1 = inputChip;
+void Chip::setInput1(Chip* inputChip) {  // Set the first input chip
+    input1 = inputChip;  // Set the input1 to the inputChip
 }
 
-void Chip::setInput2(Chip* inputChip) {
-    input2 = inputChip;
+void Chip::setInput2(Chip* inputChip) {  // Set the second input chip
+    input2 = inputChip;  // Set the input2 to the inputChip
 }
 
-void Chip::setOutput(Chip* outputChip) {
-    output = outputChip;
+void Chip::setOutput(Chip* outputChip) {  // Set the output chip
+    output = outputChip;  // Set the output to the outputChip
 }
 
-void Chip::setInputValue(double value) {
+void Chip::setInputValue(double value) {  // Set the input value
     inputValue = value;
 }
 
@@ -90,56 +90,56 @@ void Chip::compute() {
             cout << "The output value from this circuit is " << input1->inputValue << endl;
         }
     }
-    if(chipType == 'A') {
-        if(input1!=nullptr) {
-            input1->compute();
+    if(chipType == 'A') {  // Addition
+        if(input1!=nullptr) {  // Checks if input1 is not NULL before preforming addition
+            input1->compute();  // Uses recursion to compute the input1 chip
         }
-        if(input2!=nullptr) {
-            input2->compute();
+        if(input2!=nullptr) {  // Checks if input2 is not NULL before preforming addition
+            input2->compute();  // Uses recursion to compute the input2 chip
         }
-        if(input1 !=nullptr && input2 !=nullptr) {
-            inputValue = input1->inputValue + input2->inputValue;
-        }
-    }
-    if(chipType == 'S') {
-        if(input1!=nullptr) {
-            input1->compute();
-        }
-        if(input2!=nullptr) {
-            input2->compute();
-        }
-        if(input1 !=nullptr && input2 !=nullptr) {
-            inputValue = input1->inputValue - input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {  // Checks if input1 and input2 are not NULL
+            inputValue = input1->inputValue + input2->inputValue;  // Adds the input1 and input2 values
         }
     }
-    if(chipType == 'M') {
-        if(input1!=nullptr) {
-            input1->compute();
+    if(chipType == 'S') { // Subtraction
+        if(input1!=nullptr) {  // Checks if input1 is not NULL before preforming subtraction
+            input1->compute();  // Uses recursion to compute the input1 chip
         }
-        if(input2!=nullptr) {
-            input2->compute();
+        if(input2!=nullptr) {  // Checks if input2 is not NULL before preforming subtraction
+            input2->compute();  // Uses recursion to compute the input2 chip
         }
-        if(input1 !=nullptr && input2 !=nullptr) {
-            inputValue = input1->inputValue * input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {  // Checks if input1 and input2 are not NULL
+            inputValue = input1->inputValue - input2->inputValue;  // Subtracts the input1 and input2 values
+        }  
+    }
+    if(chipType == 'M') {  // Multiplication
+        if(input1!=nullptr) {  // Checks if input1 is not NULL before preforming multiplication
+            input1->compute();  // Uses recursion to compute the input1 chip
+        }
+        if(input2!=nullptr) {  // Checks if input2 is not NULL before preforming multiplication
+            input2->compute();  // Uses recursion to compute the input2 chip
+        }
+        if(input1 !=nullptr && input2 !=nullptr) {  // Checks if input1 and input2 are not NULL
+            inputValue = input1->inputValue * input2->inputValue;  // Multiplies the input1 and input2 values
         }
     }
-    if(chipType == 'D') {
-        if(input1!=nullptr) {
-            input1->compute();
+    if(chipType == 'D') {  // Division
+        if(input1!=nullptr) {  // Checks if input1 is not NULL before preforming division
+            input1->compute();  // Uses recursion to compute the input1 chip
         }
-        if(input2!=nullptr) {
-            input2->compute();
+        if(input2!=nullptr) {  // Checks if input2 is not NULL before preforming division
+            input2->compute();  // Uses recursion to compute the input2 chip
         }
-        if(input1 !=nullptr && input2 !=nullptr) {
-            inputValue = input1->inputValue / input2->inputValue;
+        if(input1 !=nullptr && input2 !=nullptr) {  // Checks if input1 and input2 are not NULL
+            inputValue = input1->inputValue / input2->inputValue;  // Divides the input1 and input2 values
         }
     }   
-    if(chipType == 'N') {
-        if(input1!=nullptr) {
-            input1->compute();
+    if(chipType == 'N') {  // Negation 
+        if(input1!=nullptr) {  // Checks if input1 is not NULL before preforming negation
+            input1->compute();  // Uses recursion to compute the input1 chip
         }
-        if(input1 !=nullptr) {
-            inputValue = -input1->inputValue;
+        if(input1 !=nullptr) {  // Checks if input1 is not NULL
+            inputValue = -input1->inputValue;  // Negates the input1 value
         }
     } 
 
@@ -151,11 +151,11 @@ void Chip::display() const {
     // For example, if the chip type is O, then display the output value
     // For example, if the chip type is A, then display the two input values
     // and the output value
-    if(chipType == 'I') {
-        cout << id << ", Output = " << output->getId() << endl;
+    if(chipType == 'I') {  // Input
+        cout << id << ", Output = " << output->getId() << endl;  // Display the input value
     }
-    if(chipType == 'O') {
-        cout << id << ", Input 1 = " << input1->getId() << endl;
+    if(chipType == 'O') {  // Output
+        cout << id << ", Input 1 = " << input1->getId() << endl;  // Display the output value
     }
     if(chipType == 'A') {
         cout << id << ", Input 1 = " << input1->getId() << ", Input 2 = " << input2->getId() << ", Output = " << output->getId() << endl;
@@ -176,24 +176,25 @@ void Chip::display() const {
 
 // Destructor
 Chip::~Chip(){
-    if(!(input1 == NULL)) {
-        delete input1;
+    // This destructor also deletes the inputs to free space
+    if(!(input1 == NULL)) {  // Check if input1 is not NULL
+        delete input1;  // Delete the input1
     }
-    if(!(input2 == NULL)) {
-        delete input2;
+    if(!(input2 == NULL)) {  // Check if input2 is not NULL
+        delete input2;  // Delete the input2
     }
 }
 
 int main () {
     //**** ALL THE VARIABLES YOU NEED FOR THIS MAIN FUNCTION *****//
     cout << "Computation Starts" << endl;
-    int numChips;
-    Chip** allChips;
-    int numCommands;
+    int numChips;  // Number of chips
+    Chip** allChips;  // Array of Chip objects pointers
+    int numCommands;  // Number of commands
 
-    cin >> numChips;
+    cin >> numChips;  // Read the number of chips
     //create an array Chip objects pointers
-    allChips = new Chip*[numChips];
+    allChips = new Chip*[numChips]; // Creates an array of Chip objects pointers
     //each array location is a pointer to a Chip Object
     
     for (int i=0; i < numChips; i++) {
@@ -216,42 +217,41 @@ int main () {
         //to find the chip that is referred and connect.
         // If the first letter is an O, then execute the compute method
         // on the object referred.
-        string command;
-        string input;
-        string chipId;
-        double value;
-        cin >> command;
-        if(command == "A") {
-            cin >> input >> chipId;
+        string command;  // stores the command
+        string input;    // stores the input
+        string chipId;   // stores the chip id
+        double value;    // stores the value if possible
+        cin >> command;  // reads in the command
+        if(command == "A") {  // If the command is Association, this will associate the input chip with the output chip
+            cin >> input >> chipId; // Reads in the input and chip id
             //find the chip with the id chipId
-            int indexOfInput;
-            int indexOfOutput;
-            for(int a = 0; a < numChips; a++) {
+            int indexOfInput; 
+            int indexOfOutput; 
+            for(int a = 0; a < numChips; a++) { // Loops through the allChips array to find the input and output chip
                 if(allChips[a]->getId() == input) {
-                    indexOfInput = a;
+                    indexOfInput = a; // Sets the index of the input chip
                 }
                 if(allChips[a]->getId() == chipId) {
-                    indexOfOutput = a;
+                    indexOfOutput = a; // Sets the index of the output chip
                 }
             }
-            if(allChips[indexOfOutput]->getInput1() == NULL) {
-                allChips[indexOfOutput]->setInput1(allChips[indexOfInput]);
+            if(allChips[indexOfOutput]->getInput1() == NULL) { // Checks if the input1 of the output chip is NULL
+                allChips[indexOfOutput]->setInput1(allChips[indexOfInput]); // Sets the input1 of the output chip to the input chip
             }
             else {
-                allChips[indexOfOutput]->setInput2(allChips[indexOfInput]);
+                allChips[indexOfOutput]->setInput2(allChips[indexOfInput]); // Sets the input2 of the output chip to the input chip
             }
-            allChips[indexOfInput]->setOutput(allChips[indexOfOutput]);
+            allChips[indexOfInput]->setOutput(allChips[indexOfOutput]); // Sets the output of the input chip to the output chip
             
         }
-        else if(command == "I") {
-            cin >> chipId >> value;
+        else if(command == "I") { // If the command is Input, this will set the input value of the chip
+            cin >> chipId >> value; // Reads in the chip id and value
             //find the chip with the id chipId
-            for(int j=0; j < numChips; j++) {
-                if(allChips[j]->getId() == chipId) {
+            for(int j=0; j < numChips; j++) { // Loops through the allChips array to find the chip
+                if(allChips[j]->getId() == chipId) { // Checks if the chip id is equal to the chip id in the allChips array
                     //connect the input value to the chip
-                    allChips[j]->setInput1(allChips[j]);
-                    allChips[j]->setInputValue(value);
-                    
+                    allChips[j]->setInput1(allChips[j]); // Sets the input1 of the chip to the chip
+                    allChips[j]->setInputValue(value); // Sets the input value of the chip
                     break;
                 }
             }
@@ -262,7 +262,7 @@ int main () {
             for(int j=0; j < numChips; j++) {
                 if(allChips[j]->getId() == chipId) {
                     //execute the compute method on the chip
-                    allChips[j]->compute();
+                    allChips[j]->compute(); 
                     break;
                 }
             }
@@ -270,13 +270,22 @@ int main () {
     }
     cout << "***** Showing the connections that were established" << endl;
     //for each component created call the display () method
+    Chip* outputChip;
     for(int c = 0; c < numChips; c++) {
-        allChips[c]->display();
+        if(allChips[c]->getId()[0] == 'O') {
+            outputChip = allChips[c];
+        }
+        else {
+            allChips[c]->display();
+        }
     }
+    outputChip->display();
+    delete outputChip;
     //delete the memory allocated for the chip objects
     for(int d = 0; d < numChips; d++) {
         delete allChips[d];
     }
+    delete[] allChips;
     return 0;
 }
 
@@ -318,7 +327,6 @@ int main () {
        than the id of the chip. I corrected this by calling getId().
 
     8. Called the destructor in the main function to delete the memory allocated for the chip objects.
-
 
 
 
