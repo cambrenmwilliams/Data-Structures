@@ -29,6 +29,7 @@ public:
     Queue(); // Constructor
     Queue(DT JobPointer); // Constructor
     Queue<DT>* getNext();
+    DT find(int job_id);
 };
 
 template <class DT>
@@ -46,6 +47,18 @@ Queue<DT>::Queue(DT JobPointer) {
 template <class DT>
 Queue<DT>* Queue<DT>::getNext() {
     return next;
+}
+
+template <class DT>
+DT Queue<DT>::find(int job_id) {
+    Queue<DT>* current = this;
+    while (current) {
+        if (current->JobPointer->job_id == job_id) {
+            return current->JobPointer;
+        }
+        current = current->next;
+    }
+    return nullptr;
 }
 
 template <class DT>
@@ -93,7 +106,7 @@ void NovelQueue<DT>::enqueue(DT JobPointer) {
             current = current->next;
         }
         current->next = newNode;
-        current->JobPointer->display();
+        //current->JobPointer->display();
     }
     size++;
 }
@@ -166,6 +179,7 @@ void NovelQueue<DT>::promote(int job_id, int positions) {
     }
 
     if (!current) {
+        current->JobPointer->display();
         return;
     }
 
@@ -261,14 +275,17 @@ int main() {
                 CPUJob* newJob = new CPUJob(job_id, priority, job_type,
                         cpu_time_consumed, memory_consumed);
                 (*myNovelQueue).enqueue(newJob);
+
+                (*newJob).display();
+
                 break;
             }   
             case 'R': { // Remove (Dequeue)
                 CPUJob* removedJob = (*myNovelQueue).dequeue();
                 if (removedJob) {
-                cout << "Dequeued Job: ";
-                (*removedJob).display();
-                delete removedJob; // Clean up memory after use
+                    cout << "Dequeued Job: ";
+                    (*removedJob).display();
+                    delete removedJob; // Clean up memory after use
                 }
                 break;
             }
@@ -287,6 +304,8 @@ int main() {
             case 'P': { // Promote
                 cin >> job_id >> positions;
                 (*myNovelQueue).promote(job_id, positions);
+                cout << "Promoted Job ID " << job_id << " by " << positions << " Position(s):" << endl;
+                myNovelQueue->front->find(job_id)->display();
                 break;
             }
             case 'O': { // Reorder
