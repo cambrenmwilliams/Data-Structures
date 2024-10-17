@@ -194,28 +194,84 @@ template <class DT>
 NovelQueue<DT>* NovelQueue<DT>::reorder(int index) {
     NovelQueue<DT>* reorderedQueue = new NovelQueue<DT>();
     Queue<DT>* current = front;
-    while (current) {
-        Queue<DT>* next = current->next;
-        if (index == 1) {
-            current->next = reorderedQueue->front;
-            reorderedQueue->front = current;
-        } else {
-            Queue<DT>* previous = nullptr;
-            Queue<DT>* temp = reorderedQueue->front;
-            while (temp && temp->JobPointer->priority > current->JobPointer->priority) {
-                previous = temp;
-                temp = temp->next;
+    switch (index) {
+        case 1: // Job ID
+            while (current) {
+                reorderedQueue->enqueue(current->JobPointer);
+                current = current->next;
             }
-            if (previous) {
-                previous->next = current;
-            } else {
-                reorderedQueue->front = current;
+            break;
+        case 2: // Priority
+            while (current) {
+                Queue<DT>* next = current->next;
+                if (reorderedQueue->size == 0 || current->JobPointer->priority > reorderedQueue->front->JobPointer->priority) {
+                    current->next = reorderedQueue->front;
+                    reorderedQueue->front = current;
+                } else {
+                    Queue<DT>* current2 = reorderedQueue->front;
+                    while (current2->next && current2->next->JobPointer->priority > current->JobPointer->priority) {
+                        current2 = current2->next;
+                    }
+                    current->next = current2->next;
+                    current2->next = current;
+                }
+                current = next;
             }
-            current->next = temp;
-        }
-        current = next;
-    }
+            break;
+        case 3: // Job Type
+            while (current) {
+                Queue<DT>* next = current->next;
+                if (reorderedQueue->size == 0 || current->JobPointer->job_type > reorderedQueue->front->JobPointer->job_type) {
+                    current->next = reorderedQueue->front;
+                    reorderedQueue->front = current;
+                } else {
+                    Queue<DT>* current2 = reorderedQueue->front;
+                    while (current2->next && current2->next->JobPointer->job_type > current->JobPointer->job_type) {
+                        current2 = current2->next;
+                    }
+                    current->next = current2->next;
+                    current2->next = current;
+                }
+                current = next;
+            }
+            break;
+        case 4: // CPU Time Consumed
+            while (current) {
+                Queue<DT>* next = current->next;
+                if (reorderedQueue->size == 0 || current->JobPointer->cpu_time_consumed > reorderedQueue->front->JobPointer->cpu_time_consumed) {
+                    current->next = reorderedQueue->front;
+                    reorderedQueue->front = current;
+                } else {
+                    Queue<DT>* current2 = reorderedQueue->front;
+                    while (current2->next && current2->next->JobPointer->cpu_time_consumed > current->JobPointer->cpu_time_consumed) {
+                        current2 = current2->next;
+                    }
+                    current->next = current2->next;
+                    current2->next = current;
+                }
+                current = next;
+            }
+            break;
+        case 5: // Memory Consumed
+            while (current) {
+                Queue<DT>* next = current->next;
+                if (reorderedQueue->size == 0 || current->JobPointer->memory_consumed > reorderedQueue->front->JobPointer->memory_consumed) {
+                    current->next = reorderedQueue->front;
+                    reorderedQueue->front = current;
+                } else {
+                    Queue<DT>* current2 = reorderedQueue->front;
+                    while (current2->next && current2->next->JobPointer->memory_consumed > current->JobPointer->memory_consumed) {
+                        current2 = current2->next;
+                    }
+                    current->next = current2->next;
+                    current2->next = current;
+                }
+                current = next;
+            }
+            break;
+    }    
     return reorderedQueue;
+
 }
 
 template <class DT>
@@ -299,11 +355,20 @@ int main() {
                 cin >> new_cpu_time_consumed >> new_memory_consumed;
                 (*myNovelQueue).modify(job_id, new_priority, new_job_type,
                 new_cpu_time_consumed, new_memory_consumed);
+                cout << "Modified Job ID " << job_id << ":" << endl;
+                myNovelQueue->front->find(job_id)->display();
+                cout << "Jobs after modification:" << endl;
+                (*myNovelQueue).display();
                 break;
             }
             case 'C': { // Change Job Values
                 cin >> job_id >> field_index >> new_value;
                 (*myNovelQueue).change(job_id, field_index, new_value);
+                cout << "Changed Job ID " << job_id << " field " << field_index << " to " << new_value << ":" << endl;
+                myNovelQueue->front->find(job_id)->display();
+                cout << "Jobs after changing field:" << endl;
+                (*myNovelQueue).display();
+
                 break;
             }
             case 'P': { // Promote
@@ -319,7 +384,7 @@ int main() {
                 cin >> attribute_index;
                 NovelQueue<CPUJob*>* reorderedQueue =
                 (*myNovelQueue).reorder(attribute_index);
-                cout << "Reordered Queue:" << endl;
+                cout << "Reordered Jobs by attribute " << attribute_index << ":" << endl;
                 (*reorderedQueue).display();
                 break;
             }
