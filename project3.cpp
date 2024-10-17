@@ -10,6 +10,7 @@ public:
     int memory_consumed; // Total memory consumed thus far
     CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, int memory_consumed); // Constructor
     void display(); // Display the job details
+    ~CPUJob() {} // Destructor
 };
 
 CPUJob::CPUJob(int job_id, int priority, int job_type, int cpu_time_consumed, int memory_consumed)
@@ -105,8 +106,7 @@ void NovelQueue<DT>::enqueue(DT JobPointer) {
         while (current->next) {
             current = current->next;
         }
-        current->next = newNode;
-        //current->JobPointer->display();
+        current->next = newNode; 
     }
     size++;
 }
@@ -262,7 +262,6 @@ int main() {
     int positions;
     int attribute_index; // Variable for the 'Reorder' command
 
-    cout << "Start Enqueueing Jobs:" << endl;
     /************** Read each command Process ***************/
     for (int i = 0; i < n; ++i) {
         cin >> command; // Read the command type
@@ -275,17 +274,23 @@ int main() {
                 CPUJob* newJob = new CPUJob(job_id, priority, job_type,
                         cpu_time_consumed, memory_consumed);
                 (*myNovelQueue).enqueue(newJob);
-
+                cout << "Enqueued Job: ";
                 (*newJob).display();
+
+                cout << "Jobs after enqueue:" << endl;
+                (*myNovelQueue).display();
 
                 break;
             }   
             case 'R': { // Remove (Dequeue)
                 CPUJob* removedJob = (*myNovelQueue).dequeue();
                 if (removedJob) {
-                    cout << "Dequeued Job: ";
+                    cout << "Dequeued Job: " << endl;
                     (*removedJob).display();
                     delete removedJob; // Clean up memory after use
+
+                    cout << "Jobs after dequeue:" << endl;
+                    (*myNovelQueue).display();
                 }
                 break;
             }
@@ -306,6 +311,8 @@ int main() {
                 (*myNovelQueue).promote(job_id, positions);
                 cout << "Promoted Job ID " << job_id << " by " << positions << " Position(s):" << endl;
                 myNovelQueue->front->find(job_id)->display();
+                cout << "Jobs after promotion:" << endl;
+                (*myNovelQueue).display();
                 break;
             }
             case 'O': { // Reorder
