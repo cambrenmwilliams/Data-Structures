@@ -4,16 +4,16 @@
 using namespace std;
 
 
-class duplicateInsertion : public exception {
+class duplicateInsertion : public std::exception {
 public:
-    const char* what() const throw() {
+    const char* what() const noexcept override {
         return "Duplicate insertion";
     }
 };
 
-class NotFoundException : public exception {
+class NotFoundException : public std::exception {
 public:
-    const char* what() const throw() {
+    const char* what() const noexcept override {
         return "Not found";
     }
 };
@@ -57,22 +57,33 @@ bool MTree<DT>::is_leaf() const {
 
 template <typename DT>
 void MTree<DT>::insert(const DT& value) {
-    if (find(value)) {
+    if (search(value)) {
         throw duplicateInsertion();
     }
-    if (values.size() < M - 1) {
+    if (is_leaf()) {
         values.push_back(value);
+        std::sort(values.begin(), values.end());
+
+        if (values.size() >= M) {
+            split_node();
+        }
     } else {
-        split_node();
-        find_child(value)->insert(value);
+        MTree<DT>* child = find_child(value);
+        child->insert(value);
+
+        if(child->values.size() >= M) {
+            child->split_node();
+        }
     }
 }
 
 template <typename DT>
 void MTree<DT>::split_node() {
+    int splitIndex = (M + 1) / 2;
     MTree<DT>* new_node = new MTree<DT>(M);
+    
     new_node->values = vector<DT>(values.begin() + (M + 1) / 2, values.end());
-    values.resize((M + 1) / 2);
+    values.resize(splitIndex);
     
     if (!is_leaf()) {
         new_node->children = vector<MTree<DT>*>(children.begin() + (M + 1) / 2, children.end());
@@ -106,23 +117,21 @@ MTree<DT>* MTree<DT>::find_child(const DT& value) {
             return children[i];
         }
     }
-    return children.back();
+    return children[children.size() - 1];
 }
 
 template <typename DT>
 bool MTree<DT>::search(const DT& value) {
-    if (values.empty()) {
+    if (std::find(values.begin(), values.end(), value) != values.end()) {
+        return true;
+    }
+    if (is_leaf()) {
         return false;
     }
-    if (value < values[0]) {
-        return children[0]->search(value);
-    }
-    for (int i = 0; i < values.size() - 1; i++) {
-        if (values[i] == value) {
-            return true;
-        }
-        if (values[i] < value && value < values[i + 1]) {
-            return children[i + 1]->search(value);
+
+    for (int i = 0; i < values.size(); i++) {
+        if (value < values[i]) {
+            return children[i]->search(value);
         }
     }
     return children.back()->search(value);
@@ -242,11 +251,12 @@ int main() {
         switch (command) {
             case 'I': { // Insert
                 cin >> value;
+                //cout << "Inserting value = " << value << endl;
                 try {
                     myTree->insert(value);
+                    cout << "The value = " << value << " has been inserted." << endl;
                 } catch (duplicateInsertion& e) {
                     cout << "The value = " << value << " already in the tree." << endl;
-                    break;
                 }
                 break;
             }
@@ -255,6 +265,7 @@ int main() {
                 cin >> value;
                 try {
                     myTree->remove(value);
+                    cout << "The value = " << value << " has been removed." << endl;
                 } catch (NotFoundException& e) {
                     cout << "The value = " << value << " not found." << endl;
                 }
@@ -284,6 +295,12 @@ int main() {
             }
         }
     }
+
+    cout << "Final list: ";
+    for(int i = 0; i < myTree->collect_values().size(); i++) {
+        cout << myTree->collect_values()[i] << " ";
+    }
+
     delete myTree;
 
     return 0;
