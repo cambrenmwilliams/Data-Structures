@@ -139,41 +139,30 @@ bool MTree<DT>::search(const DT& value) {
 
 template <typename DT>
 void MTree<DT>::remove(const DT& value) {
-    if (values.empty()) {
-        return;
-    }
-    if (value < values[0]) {
-        children[0]->remove(value);
-        return;
-    }
-    for (int i = 0; i < values.size(); i++) {
-        if (values[i] == value) {
-            values.erase(values.begin() + i);
-            if (is_leaf()) {
-                return;
+        // Find the value in the current node
+        auto it = std::find(values.begin(), values.end(), value);
+        if (it != values.end()) {
+            // Value found in the current node
+            values.erase(it);
+            // Handle rebalancing if necessary
+        } else {
+            // Value not found in the current node, search in children
+            bool found = false;
+            for (auto& child : children) {
+                if (child != nullptr) {
+                    try {
+                        child->remove(value);
+                        found = true;
+                        break;
+                    } catch (const NotFoundException&) {
+                        // Continue searching in other children
+                    }
+                }
             }
-            if (children[i]->values.size() >= (M + 1) / 2) {
-                values.insert(values.begin() + i, children[i]->values.back());
-                children[i]->values.pop_back();
-                return;
+            if (!found) {
+                throw NotFoundException();
             }
-            if (children[i + 1]->values.size() >= (M + 1) / 2) {
-                values.insert(values.begin() + i, children[i + 1]->values.front());
-                children[i + 1]->values.erase(children[i + 1]->values.begin());
-                return;
-            }
-            children[i]->values.push_back(values[i]);
-            values.erase(values.begin() + i);
-            values.insert(values.begin() + i, children[i + 1]->values.front());
-            children[i + 1]->values.erase(children[i + 1]->values.begin());
-            return;
         }
-        if (values[i] < value && value < values[i + 1]) {
-            children[i + 1]->remove(value);
-            return;
-        }
-    }
-    children.back()->remove(value);
 }
 
 template <typename DT>
