@@ -26,9 +26,10 @@ class MTree {
         vector<DT> values; // Values stored in the node (M-1 values)
         vector<MTree*> children; // Pointers to child MTrees (M+1 children)
         MTree* root; // Pointer to the root of the MTree
+        MTree* parent; // Pointer to the parent of the current node
    
     public:
-        MTree(int M) : M(M), root(this) {}
+        MTree(int M, MTree* parent = nullptr) : M(M), parent(parent) {}
         ~MTree();
         bool is_leaf() const; // Check if the current node is a leaf
         void insert(const DT& value); // Insert a value into the MTree
@@ -40,7 +41,7 @@ class MTree {
         vector<DT> collect_values(); // Collect values from all leaf nodes
         void collect_helper(vector<DT>& result); // Helper function for collect_values
         bool find (const DT& value);
-        void display(int n);
+
 };
 
 template <typename DT>
@@ -48,6 +49,7 @@ MTree<DT>::~MTree() {
     for(auto child : children) {
         delete child;
     }
+    children.clear();
 }
 
 template <typename DT>
@@ -80,14 +82,18 @@ void MTree<DT>::insert(const DT& value) {
 template <typename DT>
 void MTree<DT>::split_node() {
     int splitIndex = (M + 1) / 2;
-    MTree<DT>* new_node = new MTree<DT>(M);
-    
-    new_node->values = vector<DT>(values.begin() + (M + 1) / 2, values.end());
+    MTree<DT>* new_node = new MTree<DT>(M, this->parent);
+
+    new_node->values.assign(values.begin() + splitIndex, values.end());
     values.resize(splitIndex);
     
     if (!is_leaf()) {
-        new_node->children = vector<MTree<DT>*>(children.begin() + (M + 1) / 2, children.end());
-        children.resize((M + 1) / 2);
+        new_node->children.assign(children.begin() + splitIndex, children.end());
+        children.resize(splitIndex);
+
+        for(auto child : new_node->children) {
+            child->parent = new_node;
+        }
     }
 
     if (this == root) {
@@ -95,15 +101,18 @@ void MTree<DT>::split_node() {
         new_root->values.push_back(values.back());
         new_root->children.push_back(this);
         new_root->children.push_back(new_node);
+        
+        this->parent = new_root;
+        new_node->parent = new_root;
+        
         root = new_root;
-        new_root->root = new_root;
+        
     } else {
-        MTree<DT>* parent = dynamic_cast<MTree<DT>*>(children[0]);
         parent->values.push_back(values.back());
         parent->children.push_back(new_node);
-        sort(parent->values.begin(), parent->values.end());
+        std::sort(parent->values.begin(), parent->values.end());
         
-        if (parent->values.size() == M) {
+        if (parent->values.size() >= M) {
             parent->split_node();
         }
     }
@@ -139,34 +148,38 @@ bool MTree<DT>::search(const DT& value) {
 
 template <typename DT>
 void MTree<DT>::remove(const DT& value) {
-        // Find the value in the current node
-        auto it = std::find(values.begin(), values.end(), value);
-        if (it != values.end()) {
-            // Value found in the current node
-            values.erase(it);
-            // Handle rebalancing if necessary
-        } else {
-            // Value not found in the current node, search in children
-            bool found = false;
-            for (auto& child : children) {
-                if (child != nullptr) {
-                    try {
-                        child->remove(value);
-                        found = true;
-                        break;
-                    } catch (const NotFoundException&) {
-                        // Continue searching in other children
-                    }
+    auto it = std::find(values.begin(), values.end(), value);
+    if (it != values.end()) {
+        values.erase(it);
+        // Handle rebalancing if necessary
+    } else {
+        bool found = false;
+        for (auto& child : children) {
+            if (child != nullptr) {
+                try {
+                    child->remove(value);
+                    found = true;
+                    break;
+                } catch (const NotFoundException&) {
                 }
             }
-            if (!found) {
-                throw NotFoundException();
-            }
         }
+        if (!found) {
+            throw NotFoundException();
+        }
+    }
 }
 
 template <typename DT>
 void MTree<DT>::buildTree(vector<DT>& input_values) {
+    // Clear the current tree structure to prevent memory leaks
+    for (auto child : children) {
+        delete child;
+    }
+    children.clear();
+    values.clear();
+
+    // Build the tree with the new values
     if (input_values.size() <= M - 1) {
         values = std::move(input_values);
     } else {
@@ -183,12 +196,13 @@ void MTree<DT>::buildTree(vector<DT>& input_values) {
             }
 
             vector<DT> child_values(input_values.begin() + start, input_values.begin() + end + 1);
-            MTree<DT>* child = new MTree<DT>(M);
+            MTree<DT>* child = new MTree<DT>(M, this);
             child->buildTree(child_values);
             children.push_back(child);
         }
     }
 }
+
 
 template <typename DT>
 vector<DT> MTree<DT>::collect_values() {
@@ -215,25 +229,21 @@ bool MTree<DT>::find(const DT& value) {
     return search(value);
 }
 
-template <typename DT>
-void MTree<DT>::display(int n) {
-    if (n >= this->values.size()) {
-        
-    } else {
-        if (is_leaf()) {
-            for (int i = 0; i < values.size(); i++) {
-                cout << values[i] << " ";
-                n++;
-            }
-        } else {
-            for (int i = 0; i < children.size(); i++) {
-                if (children[i] != nullptr) {
-                    children[i]->display(n);
-                }
-            }
-        }
-    }
-}
+// template <typename DT>
+// void MTree<DT>::display(int n) {    
+//     if (is_leaf()) {
+//         for (int i = 0; i < values.size(); i++) {
+//             cout << values[i] << " ";
+//             n++;
+//         }
+//     } else {
+//         for (int i = 0; i < children.size(); i++) {
+//             if (children[i] != nullptr) {
+//                 children[i]->display(n);
+//             }
+//         }
+//      }
+// }
 
 int main() {
     int n; // Number of elements in the initial sorted array
@@ -268,7 +278,7 @@ int main() {
                 try {
                     myTree->insert(value);
                     cout << "The value = " << value << " has been inserted." << endl;
-                    n++;
+                    
                     mySortedValues.push_back(value);
                 } catch (duplicateInsertion& e) {
                     cout << "The value = " << value << " already in the tree." << endl;
@@ -281,7 +291,6 @@ int main() {
                 try {
                     myTree->remove(value);
                     cout << "The value = " << value << " has been removed." << endl;
-                    n--;
                     mySortedValues.erase(std::remove(mySortedValues.begin(), mySortedValues.end(), value), mySortedValues.end());
                 } catch (NotFoundException& e) {
                     cout << "The value = " << value << " not found." << endl;
@@ -325,3 +334,7 @@ int main() {
 
     return 0;
 }
+
+
+// g++ project4.cpp
+// a.exe < input1.txt
