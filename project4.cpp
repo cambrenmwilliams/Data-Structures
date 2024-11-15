@@ -38,15 +38,15 @@ class MTree {
         void remove(const DT& value); // Delete a value from the MTree
         void buildTree(vector<DT>& input_values); // Build the tree
         vector<DT> collect_values(); // Collect values from all leaf nodes
+        void collect_helper(vector<DT>& result); // Helper function for collect_values
         bool find (const DT& value);
+        void display(int n);
 };
-
-// Removed duplicate constructor definition
 
 template <typename DT>
 MTree<DT>::~MTree() {
-    for (int i = 0; i < children.size(); i++) {
-        delete children[i];
+    for(auto child : children) {
+        delete child;
     }
 }
 
@@ -168,47 +168,71 @@ void MTree<DT>::remove(const DT& value) {
 template <typename DT>
 void MTree<DT>::buildTree(vector<DT>& input_values) {
     if (input_values.size() <= M - 1) {
-        values = input_values;
+        values = std::move(input_values);
     } else {
         int D = input_values.size() / M;
-        for(int i = 0; i < M; i++) {
+        values.reserve(M - 1);
+        children.reserve(M);
+
+        for (int i = 0; i < M; i++) {
             int start = i * D;
-            //cout << "start: " << start << " - ";
-            int end;
-            if (i == M - 1) {
-                end = input_values.size() - 1;
-                //cout << "end: " << end << endl;
-            } else {
-                end = start + D - 1;
-                //cout << "end: " << end << endl;
+            int end = (i == M - 1) ? input_values.size() - 1 : start + D - 1;
+
+            if (i != M - 1) {
                 values.push_back(input_values[end]);
             }
+
             vector<DT> child_values(input_values.begin() + start, input_values.begin() + end + 1);
             MTree<DT>* child = new MTree<DT>(M);
             child->buildTree(child_values);
             children.push_back(child);
         }
     }
-    
 }
 
 template <typename DT>
 vector<DT> MTree<DT>::collect_values() {
     vector<DT> result;
-    if (is_leaf()) {
-        result.insert(result.end(), values.begin(), values.end());
-        return values;
-    }
-    for (int i = 0; i < children.size(); i++) {
-        vector<DT> child_values = children[i]->collect_values();
-        result.insert(result.end(), child_values.begin(), child_values.end());
-    }
+    collect_helper(result);
     return result;
+}
+
+template <typename DT>
+void MTree<DT>::collect_helper(vector<DT>& result) {
+    if (is_leaf()) {
+        for (int i = 0; i < values.size(); i++) {
+            result.push_back(values[i]);
+        }
+    } else {
+        for (int i = 0; i < children.size(); i++) {
+            children[i]->collect_helper(result);
+        }
+    }
 }
 
 template <typename DT>
 bool MTree<DT>::find(const DT& value) {
     return search(value);
+}
+
+template <typename DT>
+void MTree<DT>::display(int n) {
+    if (n >= this->values.size()) {
+        
+    } else {
+        if (is_leaf()) {
+            for (int i = 0; i < values.size(); i++) {
+                cout << values[i] << " ";
+                n++;
+            }
+        } else {
+            for (int i = 0; i < children.size(); i++) {
+                if (children[i] != nullptr) {
+                    children[i]->display(n);
+                }
+            }
+        }
+    }
 }
 
 int main() {
@@ -244,6 +268,8 @@ int main() {
                 try {
                     myTree->insert(value);
                     cout << "The value = " << value << " has been inserted." << endl;
+                    n++;
+                    mySortedValues.push_back(value);
                 } catch (duplicateInsertion& e) {
                     cout << "The value = " << value << " already in the tree." << endl;
                 }
@@ -255,6 +281,8 @@ int main() {
                 try {
                     myTree->remove(value);
                     cout << "The value = " << value << " has been removed." << endl;
+                    n--;
+                    mySortedValues.erase(std::remove(mySortedValues.begin(), mySortedValues.end(), value), mySortedValues.end());
                 } catch (NotFoundException& e) {
                     cout << "The value = " << value << " not found." << endl;
                 }
@@ -286,8 +314,11 @@ int main() {
     }
 
     cout << "Final list: ";
-    for(int i = 0; i < myTree->collect_values().size(); i++) {
-        cout << myTree->collect_values()[i] << " ";
+    for(int i = 0; i < mySortedValues.size(); i++) {
+        cout << mySortedValues[i] << " ";
+        if((i+1)%20 == 0) {
+            cout << endl;
+        }
     }
 
     delete myTree;
