@@ -1,0 +1,99 @@
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <unordered_map>
+#include <map>
+#include <iterator>
+#include <algorithm>
+
+using namespace std;
+
+template <typename K, typename V>
+class HashMap {
+    private:
+        unordered_map<K, V> storage;
+    public:
+        HashMap();
+        void insert(K key, V value);
+        bool get(K key, V &value);
+        bool remove(K key);
+        bool contains(K key);
+        size_t size();
+        bool isEmpty();
+        void print();
+}
+
+template <typename K, typename V>
+HashMap<K, V>::HashMap() {
+    storage = unordered_map<K, V>();
+}
+
+template <typename K, typename V>
+void HashMap<K, V>::insert(K key, V value) {
+    storage[key] = value;
+}
+
+template <typename K, typename V>
+bool HashMap<K, V>::get(K key, V &value) {
+    if (storage.find(key) == storage.end()) {
+        return false;
+    }
+    value = storage[key];
+    return true;
+}
+
+template <typename K, typename V>
+bool HashMap<K, V>::remove(K key) {
+    if (storage.find(key) == storage.end()) {
+        return false;
+    }
+    storage.erase(key);
+    return true;
+}
+
+template <typename K, typename V>
+bool HashMap<K, V>::contains(K key) {
+    return storage.find(key) != storage.end();
+}
+
+template <typename K, typename V>
+size_t HashMap<K, V>::size() {
+    return storage.size();
+}
+
+template <typename K, typename V>
+bool HashMap<K, V>::isEmpty() {
+    return storage.empty();
+}
+
+template <typename K, typename V>
+void HashMap<K, V>::print() {
+    for (auto it = storage.begin(); it != storage.end(); it++) {
+        cout << it->first << " " << it->second << endl;
+    }
+}
+
+int main () {
+
+    //read the name of the file ./a.out < filename.txt
+
+    //get each token and store them in the unordered_map (or map) increment
+    //its frequencies. You MAY be able to do myTokens[aToken]++. Work on this.
+    
+    //close the file (filename.txt)
+    //sort the myTokens in the decreasing order of VALUE which is frequencies
+    //print the KEYS in myTokens (which has been sorted)separated by a space.
+    
+    //after you printed the KEYS Do this
+    cout << endl;
+    cout << "********" << endl;
+
+    //Now open the filename.text file again for reading
+    //Read token by token as you have done this before
+    //each time you get a token, find its position in the myTokens (sorted
+    //data structure and print the position followed by space
+
+
+    cout << endl;
+    return 0;
+}
