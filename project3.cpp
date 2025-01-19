@@ -3,7 +3,7 @@ using namespace std;
 
 class CPUJob {
 public:
-    int job_id; // Unique identifier for the job
+    int job_id; // Unique identifier for the jobs
     int priority; // Priority level of the job (1-10)
     int job_type; // Job type (1-10)
     int cpu_time_consumed; // Total CPU time consumed by the job
