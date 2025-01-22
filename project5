@@ -1,99 +1,86 @@
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <map>
-#include <iterator>
-#include <algorithm>
-
 using namespace std;
 
-template <typename K, typename V>
-class HashMap {
-    private:
-        unordered_map<K, V> storage;
-    public:
-        HashMap();
-        void insert(K key, V value);
-        bool get(K key, V &value);
-        bool remove(K key);
-        bool contains(K key);
-        size_t size();
-        bool isEmpty();
-        void print();
-}
+int main() {
+    // Read the entire input as a single string
+    string input;
+    getline(cin, input); // Get the entire line of input
 
-template <typename K, typename V>
-HashMap<K, V>::HashMap() {
-    storage = unordered_map<K, V>();
-}
+    // Process the input string into tokens
+    unordered_map<string, int> myTokens;
+    size_t start = 0;
+    size_t end = input.find(' ');
 
-template <typename K, typename V>
-void HashMap<K, V>::insert(K key, V value) {
-    storage[key] = value;
-}
-
-template <typename K, typename V>
-bool HashMap<K, V>::get(K key, V &value) {
-    if (storage.find(key) == storage.end()) {
-        return false;
+    while (end != string::npos) {
+        string token = input.substr(start, end - start);
+        myTokens[token]++;
+        start = end + 1;
+        end = input.find(' ', start);
     }
-    value = storage[key];
-    return true;
-}
 
-template <typename K, typename V>
-bool HashMap<K, V>::remove(K key) {
-    if (storage.find(key) == storage.end()) {
-        return false;
+    // Gets the final token
+    myTokens[input.substr(start)]++;
+
+    // Use a map to sort by frequency and alphabetically for ties
+    map<int, map<string, int>, greater<int>> sortedTokens; // Nested map
+    for (const auto& entry : myTokens) {
+        sortedTokens[entry.second][entry.first] = 1; // Store in nested map
     }
-    storage.erase(key);
-    return true;
-}
 
-template <typename K, typename V>
-bool HashMap<K, V>::contains(K key) {
-    return storage.find(key) != storage.end();
-}
-
-template <typename K, typename V>
-size_t HashMap<K, V>::size() {
-    return storage.size();
-}
-
-template <typename K, typename V>
-bool HashMap<K, V>::isEmpty() {
-    return storage.empty();
-}
-
-template <typename K, typename V>
-void HashMap<K, V>::print() {
-    for (auto it = storage.begin(); it != storage.end(); it++) {
-        cout << it->first << " " << it->second << endl;
+    // Print the keys (tokens) sorted by frequency and alphabetically
+    for (const auto& freqGroup : sortedTokens) {
+        for (const auto& tokenEntry : freqGroup.second) {
+            cout << tokenEntry.first << " ";  // Print without adding extra newlines
+        }
     }
-}
-
-int main () {
-
-    //read the name of the file ./a.out < filename.txt
-
-    //get each token and store them in the unordered_map (or map) increment
-    //its frequencies. You MAY be able to do myTokens[aToken]++. Work on this.
-    
-    //close the file (filename.txt)
-    //sort the myTokens in the decreasing order of VALUE which is frequencies
-    //print the KEYS in myTokens (which has been sorted)separated by a space.
-    
-    //after you printed the KEYS Do this
     cout << endl;
-    cout << "********" << endl;
+    cout << "**********" << endl;
 
-    //Now open the filename.text file again for reading
-    //Read token by token as you have done this before
-    //each time you get a token, find its position in the myTokens (sorted
-    //data structure and print the position followed by space
+    // Re-process the input to print token positions
+    start = 0;
+    end = input.find(' ');
 
+    while (end != string::npos) {
+        string token = input.substr(start, end - start);
+        int position = 0;
+        for (const auto& freqGroup : sortedTokens) {
+            for (const auto& tokenEntry : freqGroup.second) {
+                if (tokenEntry.first == token) {
+                    cout << position + 1 << " ";  // Print positions without newline
+                    break;
+                }
+                position++;
+            }
+        }
+        start = end + 1;
+        end = input.find(' ', start);
+    }
 
-    cout << endl;
+    // Process the last token after the final space
+    string lastToken = input.substr(start);
+    int position = 0;
+    for (const auto& freqGroup : sortedTokens) {
+        for (const auto& tokenEntry : freqGroup.second) {
+            if (tokenEntry.first == lastToken) {
+                cout << position + 1 << " ";  // Print last token position
+                break;
+            }
+            position++;
+        }
+    }
+
+    cout << endl;  // Ensure final output ends with a newline
+
     return 0;
 }
+
+// LLM and Debugging
+/*
+    The main usage of LLM was to help explain how maps work and how to implement them. It explained the basics of maps and created the map
+    that would print the position values. I then asked the ai how to sort by both frequency and alphabetically, because the output was not
+    sorted alphabetically. The ai created another map and sorted by frequency and alphabetically. The only other issue I had was that the
+    position list was off by 1, so I had to add 1 to the position.
+*/
